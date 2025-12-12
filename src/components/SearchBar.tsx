@@ -3,13 +3,17 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 
-function StatsBar() {
+type StatsBarProp = {
+  placeholder?: string;
+};
+
+function StatsBar({placeholder}: StatsBarProp) {
   return (
     <Box sx={{ marginTop: 1, marginDown: 1, width: '20%' }}>
       <TextField
         fullWidth
         id="search-bar"
-        placeholder="Search stats..."
+        placeholder={placeholder}
         variant="outlined"
         InputProps={{
           startAdornment: (
