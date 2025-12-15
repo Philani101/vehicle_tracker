@@ -5,6 +5,7 @@ import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import AlertCard from './AlertCard';
 
 type AlertListProp = {
   title: string;
@@ -43,7 +44,12 @@ export default function AlertList({ title, children }: AlertListProp) {
       {/* Collapsible Content */}
       <Collapse in={open}>
         <Box>
-           {children}
+          <AlertCard
+            id='alert1'
+            message='High temperature detected in engine.'
+            time='2024-06-15 10:45 AM'
+            onResolve={(id: string) => { console.log(`Resolved alert with id: ${id}`); }}
+          />
         </Box>
       </Collapse>
     </Box>
