@@ -19,6 +19,11 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
 });
 
+// Test connection
+pool.connect()
+  .then(() => console.log('✅ Database connected successfully'))
+  .catch(err => console.error('❌ Database connection error:', err.message));
+
 // --- API ROUTES ---
 
 // 1. Get All Vehicles (Updated to include warnings)
@@ -45,8 +50,8 @@ app.get('/api/vehicles', async (req, res) => {
     const result = await pool.query(query);
     res.json(result.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error in /api/vehicles:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -63,7 +68,14 @@ app.post('/api/vehicles', async (req, res) => {
     const query = `
       INSERT INTO vehicles (user_id, name, license_plate, status, current_speed, current_location, last_update)
       VALUES ($1, $2, $3, $4, $5, $6, NOW())
-      RETURNING *
+      RETURNING 
+        id, 
+        name, 
+        license_plate as "licensePlate", 
+        status, 
+        current_speed as speed, 
+        current_location as location, 
+        last_update as "lastUpdate"
     `;
     
     const values = [user_id, name, licensePlate, current_status, current_speed, location];
@@ -71,8 +83,8 @@ app.post('/api/vehicles', async (req, res) => {
     
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error in POST /api/vehicles:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -100,8 +112,8 @@ app.get('/api/vehicles/:id', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error in GET /api/vehicles/:id:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -128,8 +140,8 @@ app.get('/api/stats', async (req, res) => {
       alerts: parseInt(alerts.rows[0].count)
     });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error in /api/stats:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -148,8 +160,8 @@ app.get('/api/alerts', async (req, res) => {
     `);
     res.json(result.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error in /api/alerts:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -160,8 +172,8 @@ app.patch('/api/alerts/:id/resolve', async (req, res) => {
     await pool.query('UPDATE alerts SET is_resolved = true WHERE id = $1', [id]);
     res.json({ message: 'Alert resolved' });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error in PATCH /api/alerts/:id/resolve:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -178,11 +190,11 @@ app.get('/api/vehicles/:id/history', async (req, res) => {
     `, [id]);
     res.json(result.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error in GET /api/vehicles/:id/history:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`🚀 Server running on port ${port}`);
 });
