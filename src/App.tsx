@@ -6,10 +6,11 @@ import AddBtn from './components/AddBtn';
 import CarList from './components/CarList';
 import AlertList from './components/AlertList';
 import VehicleDetails from './components/VehicleDetails';
+import VehicleMap from './components/VehicleMap'; // Import the new component
 import { type Vehicle } from './components/VehicleCard';
 
 function App() {
-  const [, setVehicles] = useState<Vehicle[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
@@ -34,12 +35,30 @@ function App() {
     setSelectedVehicle(vehicle);
   };
 
+  // Search handler to filter vehicles
+  const handleSearch = (query: string) => {
+    const lowerCaseQuery = query.toLowerCase();
+    const filtered = vehicles.filter((vehicle) => 
+      vehicle.name.toLowerCase().includes(lowerCaseQuery) ||
+      vehicle.licensePlate.toLowerCase().includes(lowerCaseQuery)
+    );
+    setFilteredVehicles(filtered);
+  };
+
   return (
     <>
       <NavigationBar />
       <StatsBar />
       <AddBtn onVehicleAdded={fetchVehicles} />
-      <SearchBar placeholder='search vehicle...' />
+      
+      {/* SearchBar with functionality */}
+      <SearchBar 
+        placeholder='Search vehicle by name or plate...' 
+        onSearch={handleSearch} 
+      />
+      
+      {/* New Map Button */}
+      <VehicleMap />
       
       {/* Passing state down to lists */}
       <CarList 
