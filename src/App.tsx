@@ -9,7 +9,7 @@ import VehicleDetails from './components/VehicleDetails';
 import { type Vehicle } from './components/VehicleCard';
 
 function App() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
