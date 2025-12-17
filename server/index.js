@@ -27,33 +27,33 @@ pool.connect()
 // --- API ROUTES ---
 
 // 1. Get All Vehicles (Updated to include warnings)
-app.get('/api/vehicles', async (req, res) => {
-  try {
-    const query = `
-      SELECT 
-        v.id, 
-        v.name, 
-        v.license_plate as "licensePlate", 
-        v.status, 
-        v.current_speed as speed, 
-        v.current_location as location, 
-        to_char(v.last_update, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "lastUpdate",
-        COALESCE(
-          (SELECT json_agg(message) 
-           FROM alerts a 
-           WHERE a.vehicle_id = v.id AND a.is_resolved = false), 
-          '[]'
-        ) as warnings
-      FROM vehicles v
-      ORDER BY v.id ASC
-    `;
-    const result = await pool.query(query);
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Error in /api/vehicles:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
+// app.get('/api/vehicles', async (req, res) => {
+//   try {
+//     const query = `
+//       SELECT 
+//         v.id, 
+//         v.name, 
+//         v.license_plate as "licensePlate", 
+//         v.status, 
+//         v.current_speed as speed, 
+//         v.current_location as location, 
+//         to_char(v.last_update, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "lastUpdate",
+//         COALESCE(
+//           (SELECT json_agg(message) 
+//            FROM alerts a 
+//            WHERE a.vehicle_id = v.id AND a.is_resolved = false), 
+//           '[]'
+//         ) as warnings
+//       FROM vehicles v
+//       ORDER BY v.id ASC
+//     `;
+//     const result = await pool.query(query);
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error('Error in /api/vehicles:', err.message);
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 // 2. Add New Vehicle
 app.post('/api/vehicles', async (req, res) => {
@@ -191,6 +191,36 @@ app.get('/api/vehicles/:id/history', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('Error in GET /api/vehicles/:id/history:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+// Get All Vehicles (with coordinates)
+app.get('/api/vehicles', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        v.id, 
+        v.name, 
+        v.license_plate as "licensePlate", 
+        v.status, 
+        v.current_speed as speed, 
+        v.current_location as location, 
+        v.latitude,
+        v.longitude,
+        to_char(v.last_update, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "lastUpdate",
+        COALESCE(
+          (SELECT json_agg(message) 
+           FROM alerts a 
+           WHERE a.vehicle_id = v.id AND a.is_resolved = false), 
+          '[]'
+        ) as warnings
+      FROM vehicles v
+      ORDER BY v.id ASC
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error in /api/vehicles:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
