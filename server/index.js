@@ -58,27 +58,34 @@ pool.connect()
 // 2. Add New Vehicle
 app.post('/api/vehicles', async (req, res) => {
   try {
-    const { name, licensePlate, status, speed, location, userId } = req.body;
+    // ADDED: latitude and longitude to destructuring
+    const { name, licensePlate, status, speed, location, latitude, longitude, userId } = req.body;
     
     // Default values if not provided
     const user_id = userId || 1; 
     const current_speed = speed || 0;
     const current_status = status || 'OFFLINE';
+    // ADDED: Default lat/lon
+    const lat = latitude || 0;
+    const lon = longitude || 0;
 
     const query = `
-      INSERT INTO vehicles (user_id, name, license_plate, status, current_speed, current_location, last_update)
-      VALUES ($1, $2, $3, $4, $5, $6, NOW())
+      INSERT INTO vehicles (user_id, name, license_plate, status, current_speed, current_location, latitude, longitude, last_update)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
       RETURNING 
         id, 
         name, 
         license_plate as "licensePlate", 
         status, 
         current_speed as speed, 
-        current_location as location, 
+        current_location as location,
+        latitude,
+        longitude, 
         last_update as "lastUpdate"
     `;
     
-    const values = [user_id, name, licensePlate, current_status, current_speed, location];
+    // ADDED: lat and lon to values array
+    const values = [user_id, name, licensePlate, current_status, current_speed, location, lat, lon];
     const result = await pool.query(query, values);
     
     res.status(201).json(result.rows[0]);

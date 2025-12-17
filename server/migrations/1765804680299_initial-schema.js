@@ -17,6 +17,8 @@ exports.up = (pgm) => {
     status: { type: 'varchar(20)', notNull: true, default: "'OFFLINE'" },
     current_speed: { type: 'integer', default: 0 },
     current_location: { type: 'varchar(255)' },
+    latitude: { type: 'double precision', default: 0 },
+    longitude: { type: 'double precision', default: 0 },
     last_update: { type: 'timestamp', default: pgm.func('current_timestamp') },
   });
 
