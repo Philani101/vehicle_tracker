@@ -22,7 +22,7 @@ function NavigationBar() {
           >
             <MenuIcon />
           </IconButton>
-          <img src="../public/logo_1-removebg-preview.png" alt="Logo" style={{ width: '120px', height: '60', marginRight: '10px' }} />
+          <img src="/logo_1-removebg-preview.png" alt="Logo" style={{ width: '120px', height: '60', marginRight: '10px' }} />
           {/* Logo / Title */}
           <Typography variant="h6" component="section" sx={{ flexGrow: 1, color: 'blue' }}>
             Moto+Guard
