@@ -11,14 +11,30 @@ app.use(cors());
 app.use(express.json());
 
 // Database Connection
+// const pool = new Pool({
+//   user: process.env.DB_USER || 'postgres',
+//   host: process.env.DB_HOST || 'localhost',
+//   database: process.env.DB_NAME || 'car_tracker_db',
+//   password: process.env.DB_PASSWORD || 'password',
+//   port: process.env.DB_PORT || 5432,
+// });
+const isProduction = process.env.NODE_ENV === 'production';
+
 const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'car_tracker_db',
-  password: process.env.DB_PASSWORD || 'password',
-  port: process.env.DB_PORT || 5432,
+  connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
+  ssl: isProduction ? { rejectUnauthorized: false } : false, // Required for Vercel Postgres
 });
 
+// If no connection string is found (Local Fallback), use individual params
+if (!process.env.POSTGRES_URL && !process.env.DATABASE_URL) {
+    pool.options = {
+        user: process.env.DB_USER || 'postgres',
+        host: process.env.DB_HOST || 'localhost',
+        database: process.env.DB_NAME || 'car_tracker_db',
+        password: process.env.DB_PASSWORD || 'password',
+        port: process.env.DB_PORT || 5432,
+    };
+}
 // Test connection
 pool.connect()
   .then(() => console.log('✅ Database connected successfully'))
