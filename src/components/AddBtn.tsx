@@ -183,10 +183,10 @@ function AddBtn({ onVehicleAdded }: AddBtnProps) {
             getOptionLabel={(option) => option.display_name}
             options={options}
             loading={loading}
-            onInputChange={(event, newInputValue) => {
+            onInputChange={(_event, newInputValue) => {
               setInputValue(newInputValue);
             }}
-            onChange={(event, newValue: LocationOption | null) => {
+            onChange={(_event, newValue: LocationOption | null) => {
               if (newValue) {
                 setFormData({
                   ...formData,
