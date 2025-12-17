@@ -105,7 +105,7 @@ function AddBtn({ onVehicleAdded }: AddBtnProps) {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/vehicles', {
+      const response = await fetch('/api/vehicles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

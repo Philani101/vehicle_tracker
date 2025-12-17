@@ -1,73 +1,127 @@
-# React + TypeScript + Vite
+Markdown
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Vehicle Tracker System
 
-Currently, two official plugins are available:
+A full-stack web application designed for fleet management and vehicle tracking. This system allows users to monitor vehicle locations on an interactive map, manage vehicle status, view dashboard statistics, and handle system alerts.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Dashboard Overview:** Real-time statistics for total, active, and offline vehicles, plus active alerts.
+- **Interactive Map:** Visual tracking of vehicle locations using Leaflet and OpenStreetMap.
+- **Vehicle Management:** Add new vehicles with automatic geolocation (latitude/longitude) via address search.
+- **Alert System:** Monitor and resolve vehicle-related alerts.
+- **Responsive Design:** Built with Material UI for a modern, accessible interface.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Technologies Used
 
-## Expanding the ESLint configuration
+### Frontend
+- React (TypeScript)
+- Vite
+- Material UI (MUI)
+- React Leaflet / Leaflet CSS
+- Fetch API
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Backend
+- Node.js
+- Express.js
+- PostgreSQL
+- node-pg-migrate (Database Migrations)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Prerequisites
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Before running this project, ensure you have the following installed:
+- Node.js (v16 or higher)
+- npm (Node Package Manager)
+- PostgreSQL
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Installation
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd vehicle_tracker
+Install dependencies This project uses a root package.json to manage scripts, but dependencies are split between the root (frontend) and the server folder.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Install root/frontend dependencies:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Bash
+
+npm install
+Install server dependencies:
+
+Bash
+
+cd server
+npm install
+cd ..
+Configuration
+Database Setup
+Create a PostgreSQL database (e.g., car_tracker_db) locally or use a cloud provider like Neon/Vercel Postgres.
+
+Create a .env file in the server directory.
+
+File: server/.env
+
+Code snippet
+
+# Local Development
+DB_USER=postgres
+DB_HOST=localhost
+DB_NAME=car_tracker_db
+DB_PASSWORD=your_password
+DB_PORT=5432
+
+# Production / Cloud (Alternative)
+# DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
+Database Migrations
+Initialize the database tables (Users, Vehicles, Alerts, Location History) by running the migration script.
+
+From the root directory:
+
+Bash
+
+npm run server -- run migrate:up
+Alternatively, navigate to the server folder and run npm run migrate:up directly.
+
+Running the Application
+This project is configured to run both the frontend and backend concurrently using a single command.
+
+Start Development Server:
+
+Bash
+
+npm run dev:all
+Frontend: Runs on http://localhost:5173
+
+Backend API: Runs on http://localhost:5000
+
+Project Structure
+src/: Contains the React frontend code.
+
+components/: UI components (VehicleMap, StatsBar, AddBtn, etc.).
+
+server/: Contains the Node.js/Express backend code.
+
+migrations/: SQL migration files for database schema.
+
+index.js: Main server entry point and API routes.
+
+API Endpoints
+The backend provides the following RESTful endpoints:
+
+GET /api/vehicles: Retrieve all vehicles with latest status and location.
+
+GET /api/vehicles/:id: Get details for a specific vehicle.
+
+POST /api/vehicles: Register a new vehicle.
+
+GET /api/stats: Get dashboard counts (Total, Active, Offline, Alerts).
+
+GET /api/alerts: Retrieve active system alerts.
+
+PATCH /api/alerts/:id/resolve: Mark an alert as resolved.
+
+GET /api/vehicles/:id/history: Retrieve location history for a vehicle.
+
+License
+This project is open source and available under the MIT License.

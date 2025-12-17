@@ -23,7 +23,7 @@ export default function AlertList({ title }: AlertListProp) {
 
   const fetchAlerts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/alerts');
+      const response = await fetch('/api/alerts');
       if (response.ok) {
         setAlerts(await response.json());
       }
@@ -34,7 +34,7 @@ export default function AlertList({ title }: AlertListProp) {
 
   const handleResolve = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/alerts/${id}/resolve`, {
+      const response = await fetch(`/api/alerts/${id}/resolve`, {
         method: 'PATCH',
       });
       if (response.ok) {
