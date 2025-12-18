@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-
+app.use(express.static(path.join(__dirname, '../dist')));
 // Database Connection
 // const pool = new Pool({
 //   user: process.env.DB_USER || 'postgres',
@@ -246,6 +246,10 @@ app.get('/api/vehicles', async (req, res) => {
     console.error('Error in /api/vehicles:', err.message);
     res.status(500).json({ error: err.message });
   }
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 app.listen(port, () => {
