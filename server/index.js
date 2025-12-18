@@ -71,43 +71,34 @@ pool.connect()
 //     res.status(500).json({ error: err.message });
 //   }
 // });
-// --- TEMPORARY SEED ROUTE ---
 app.get('/api/seed', async (req, res) => {
   try {
-    // Check if data already exists
-    const check = await pool.query('SELECT count(*) FROM vehicles');
-    if (parseInt(check.rows[0].count) > 0) {
-      return res.status(400).json({ message: 'Database already has data!' });
-    }
+    // 1. Clear ONLY vehicle-related data (Keep the users table as is)
+    await pool.query('DELETE FROM location_history');
+    await pool.query('DELETE FROM alerts');
+    await pool.query('DELETE FROM vehicles');
 
-    // 1. Insert Vehicles
-    await pool.query(`
+    // 2. Insert Vehicles (Linked to User ID 1 - 'admin')
+    const v1 = await pool.query(`
       INSERT INTO vehicles (user_id, name, license_plate, status, current_speed, current_location, latitude, longitude, last_update)
-      VALUES 
-        (1, 'Toyota Hilux Logistics', 'JHB 123 GP', 'NORMAL', 45, 'Sandton, Johannesburg', -26.1076, 28.0567, NOW()),
-        (1, 'Ford Ranger Delivery', 'CPT 999 CA', 'OFFLINE', 0, 'Cape Town Depot', -33.9249, 18.4241, NOW() - INTERVAL '2 hours'),
-        (1, 'Isuzu D-Max Cargo', 'DBN 555 KZ', 'ALERT', 120, 'N3 Highway, Durban', -29.8587, 31.0218, NOW())
-    `);
-
-    // 2. Insert Alerts (using subqueries to find the correct vehicle IDs)
-    await pool.query(`
-      INSERT INTO alerts (vehicle_id, message, is_resolved, created_at)
-      VALUES 
-        ((SELECT id FROM vehicles WHERE license_plate = 'DBN 555 KZ'), 'Over-speeding detected: 120 km/h in 100 zone', false, NOW()),
-        ((SELECT id FROM vehicles WHERE license_plate = 'DBN 555 KZ'), 'Geofence violation: Exited Durban Zone', true, NOW() - INTERVAL '1 day'),
-        ((SELECT id FROM vehicles WHERE license_plate = 'CPT 999 CA'), 'Vehicle offline for more than 2 hours', false, NOW() - INTERVAL '1 hour')
-    `);
+      VALUES (1, 'Toyota Hilux Logistics', 'JHB 123 GP', 'NORMAL', 45, 'Sandton, Johannesburg', -26.1076, 28.0567, NOW()) RETURNING id`);
     
-    // 3. Insert Location History
-    await pool.query(`
-      INSERT INTO location_history (vehicle_id, location, recorded_at)
-      VALUES 
-        ((SELECT id FROM vehicles WHERE license_plate = 'JHB 123 GP'), 'Midrand, Gauteng', NOW() - INTERVAL '30 minutes'),
-        ((SELECT id FROM vehicles WHERE license_plate = 'JHB 123 GP'), 'Centurion, Gauteng', NOW() - INTERVAL '15 minutes'),
-        ((SELECT id FROM vehicles WHERE license_plate = 'JHB 123 GP'), 'Sandton, Johannesburg', NOW())
-    `);
+    const v2 = await pool.query(`
+      INSERT INTO vehicles (user_id, name, license_plate, status, current_speed, current_location, latitude, longitude, last_update)
+      VALUES (1, 'Ford Ranger Delivery', 'CPT 999 CA', 'OFFLINE', 0, 'Cape Town Depot', -33.9249, 18.4241, NOW()) RETURNING id`);
+    
+    const v3 = await pool.query(`
+      INSERT INTO vehicles (user_id, name, license_plate, status, current_speed, current_location, latitude, longitude, last_update)
+      VALUES (1, 'Isuzu D-Max Cargo', 'DBN 555 KZ', 'ALERT', 120, 'N3 Highway, Durban', -29.8587, 31.0218, NOW()) RETURNING id`);
 
-    res.json({ message: '✅ Mock data seeded successfully!' });
+    // 3. Insert Alerts and History
+    const vehicle3Id = v3.rows[0].id;
+    const vehicle1Id = v1.rows[0].id;
+
+    await pool.query(`INSERT INTO alerts (vehicle_id, message, is_resolved, created_at) VALUES ($1, 'Over-speeding detected', false, NOW())`, [vehicle3Id]);
+    await pool.query(`INSERT INTO location_history (vehicle_id, location, recorded_at) VALUES ($1, 'Midrand, Gauteng', NOW() - INTERVAL '30 minutes')`, [vehicle1Id]);
+
+    res.send('✅ Database seeded successfully! <a href="/">Go back to Dashboard</a>');
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
