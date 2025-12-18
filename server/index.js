@@ -248,6 +248,8 @@ app.get('/api/vehicles', async (req, res) => {
   }
 });
 
-module.exports = (req, res) => {
-  app(req, res);
-};
+app.listen(port, () => {
+  console.log(`🚀 Server running on port ${port}`);
+});
+
+module.exports = app;
