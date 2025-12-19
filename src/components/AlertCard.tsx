@@ -4,6 +4,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { colors, spacing, borderRadius } from '../theme/designTokens';
 
 interface AlertCardProps {
   id: string;
@@ -12,46 +13,68 @@ interface AlertCardProps {
   onResolve: (id: string) => void;
 }
 
-export default function AlertCard({ id, message, time, onResolve }: AlertCardProps) {
+export default function AlertCard({
+  id,
+  message,
+  time,
+  onResolve,
+}: AlertCardProps) {
   return (
     <Card
       variant="outlined"
       sx={{
-        backgroundColor: '#fff5f5', // Very light red background
-        borderColor: '#ffcdd2',     // Light red border
+        backgroundColor: colors.status.errorBg,
+        borderColor: '#ffcdd2',
         borderWidth: 1,
-        borderRadius: 2,
+        borderRadius: borderRadius.md,
         boxShadow: 'none',
-        mb: 2 // Margin bottom for spacing between alerts
+        mb: spacing.md,
+        transition: 'all 250ms ease-in-out',
+        '&:hover': {
+          boxShadow: colors.status.error + '20',
+        },
       }}
     >
-      <CardContent sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+      <CardContent
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '16px !important' // Override default padding
-      }}>
+          padding: `${spacing.md} !important`,
+        }}
+      >
         {/* Left Side: Icon & Text */}
         <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-            <WarningAmberIcon sx={{ color: '#d32f2f' }} />
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                color: '#5c1b1b', // Dark red/brown text for readability
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: spacing.md, mb: spacing.md }}>
+            <WarningAmberIcon
+              sx={{
+                color: colors.status.error,
+                fontSize: '24px',
+                flexShrink: 0,
+              }}
+              aria-hidden="false"
+              role="img"
+              aria-label="Alert warning icon"
+            />
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#5c1b1b',
                 fontWeight: 600,
-                fontSize: '1rem'
+                fontSize: '1rem',
               }}
             >
               {message}
             </Typography>
           </Box>
-          <Typography 
-            variant="caption" 
-            sx={{ 
-              color: '#d32f2f', // Red text for time
+
+          <Typography
+            variant="caption"
+            sx={{
+              color: colors.status.error,
               fontWeight: 500,
-              ml: 4.5 // Align with text (skipping icon width)
+              ml: '40px',
+              display: 'block',
             }}
           >
             {time}
@@ -59,18 +82,23 @@ export default function AlertCard({ id, message, time, onResolve }: AlertCardPro
         </Box>
 
         {/* Right Side: Resolve Button */}
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={() => onResolve(id)}
+          aria-label={`Resolve alert: ${message}`}
           sx={{
-            backgroundColor: '#d32f2f',
+            backgroundColor: colors.status.error,
             textTransform: 'none',
             fontWeight: 'bold',
             boxShadow: 'none',
+            whiteSpace: 'nowrap',
+            ml: spacing.md,
             '&:hover': {
               backgroundColor: '#b71c1c',
               boxShadow: 'none',
-            }
+            },
+            // WCAG AA contrast ratio: 4.5:1 minimum
+            color: '#FFFFFF',
           }}
         >
           Resolve

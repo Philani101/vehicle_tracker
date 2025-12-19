@@ -6,25 +6,45 @@ import AddBtn from './components/AddBtn';
 import CarList from './components/CarList';
 import AlertList from './components/AlertList';
 import VehicleDetails from './components/VehicleDetails';
-import VehicleMap from './components/VehicleMap'; // Import the new component
+import VehicleMap from './components/VehicleMap';
 import { type Vehicle } from './components/VehicleCard';
 
 function App() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchVehicles = async () => {
+    setLoading(true);
     try {
       const response = await fetch('/api/vehicles');
       if (response.ok) {
         const data = await response.json();
         setVehicles(data);
-        setFilteredVehicles(data);
+        applySearch(data, searchQuery);
       }
     } catch (error) {
       console.error('Failed to fetch vehicles', error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const applySearch = (vehicleList: Vehicle[], query: string) => {
+    if (!query.trim()) {
+      setFilteredVehicles(vehicleList);
+      return;
+    }
+
+    const lowerCaseQuery = query.toLowerCase();
+    const filtered = vehicleList.filter(
+      (vehicle) =>
+        vehicle.name.toLowerCase().includes(lowerCaseQuery) ||
+        vehicle.licensePlate.toLowerCase().includes(lowerCaseQuery)
+    );
+    setFilteredVehicles(filtered);
   };
 
   useEffect(() => {
@@ -35,14 +55,9 @@ function App() {
     setSelectedVehicle(vehicle);
   };
 
-  // Search handler to filter vehicles
   const handleSearch = (query: string) => {
-    const lowerCaseQuery = query.toLowerCase();
-    const filtered = vehicles.filter((vehicle) => 
-      vehicle.name.toLowerCase().includes(lowerCaseQuery) ||
-      vehicle.licensePlate.toLowerCase().includes(lowerCaseQuery)
-    );
-    setFilteredVehicles(filtered);
+    setSearchQuery(query);
+    applySearch(vehicles, query);
   };
 
   return (
@@ -50,29 +65,31 @@ function App() {
       <NavigationBar />
       <StatsBar />
       <AddBtn onVehicleAdded={fetchVehicles} />
-      
-      {/* SearchBar with functionality */}
-      <SearchBar 
-        placeholder='Search vehicle by name or plate...' 
-        onSearch={handleSearch} 
+
+      <SearchBar
+        placeholder="Search vehicle by name or plate..."
+        onSearch={handleSearch}
       />
-      
-      {/* New Map Button */}
+
       <VehicleMap />
-      
-      {/* Passing state down to lists */}
-      <CarList 
-        title="Tracked Cars" 
-        vehicles={filteredVehicles} 
+
+      <CarList
+        title="Tracked Cars"
+        vehicles={filteredVehicles}
         onSelect={handleVehicleSelect}
         selectedId={selectedVehicle?.id}
+        loading={loading}
       />
-      
-      <AlertList title="Alerts"/>
-      
-      <VehicleDetails title="Vehicle Details" vehicle={selectedVehicle}/>
+
+      <AlertList title="Alerts" />
+
+      <VehicleDetails
+        title="Vehicle Details"
+        vehicle={selectedVehicle}
+        loading={false}
+      />
     </>
-  )
+  );
 }
 
 export default App;
